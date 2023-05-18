@@ -6,6 +6,7 @@
 #include <d3dx12.h>
 
 #include <string>
+#include "Model.h"
 
 class FbxLoader
 {
@@ -40,6 +41,13 @@ public:
 	/// </summary>
 	/// <param name="modelName">モデル名</param>
 	void LoadModelFromFile(const string& modelName);
+
+	/// <summary>
+	/// 再帰的にノード構成を解析
+	/// </summary>
+	/// <param name="model">読み込み先モデルオブジェクト</param>
+	/// <param name="fbxNode">解析対象のノード</param>
+	void ParseNodeRecursive(Model* model, FbxNode* fbxNode, Node* parent = nullptr);
 
 private:
 	// privateなコンストラクタ（シングルトンパターン）
