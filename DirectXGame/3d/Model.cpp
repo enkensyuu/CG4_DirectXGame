@@ -5,14 +5,29 @@ void Model::CreateBuffers(ID3D12Device* device)
 	HRESULT result;
 	// 頂点データ全体のサイズ
 	UINT sizeVB = static_cast<UINT>(sizeof(VertexPosNormalUv) * vertices.size());
-	// 頂点バッファ生成
+
+	//頂点バッファの設定
+	D3D12_HEAP_PROPERTIES heapProp{};		//ヒープ説明
+	heapProp.Type = D3D12_HEAP_TYPE_UPLOAD;	//GPUへの転送
+	//リソース設定
+	D3D12_RESOURCE_DESC resDesc{};
+	resDesc.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER;
+	resDesc.Width = sizeVB;
+	resDesc.Height = 1;
+	resDesc.DepthOrArraySize = 1;
+	resDesc.MipLevels = 1;
+	resDesc.SampleDesc.Count = 1;
+	resDesc.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
+
+	//頂点バッファの生成
 	result = device->CreateCommittedResource(
-		&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD),
+		&heapProp,
 		D3D12_HEAP_FLAG_NONE,
-		&CD3DX12_RESOURCE_DESC::Buffer(sizeVB),
+		&resDesc,
 		D3D12_RESOURCE_STATE_GENERIC_READ,
 		nullptr,
 		IID_PPV_ARGS(&vertBuff));
+	assert(SUCCEEDED(result));
 
 	// 頂点バッファへのデータ転送
 	VertexPosNormalUv* vertMap = nullptr;
@@ -29,8 +44,8 @@ void Model::CreateBuffers(ID3D12Device* device)
 	vbView.StrideInBytes = sizeof(vertices[0]);
 
 	// 頂点インデックス全体のサイズ
-	UINT sizeIB = static_cast<UINT>(sizeof(unsigned short) *
-		indices.size());
+	UINT sizeIB = static_cast<UINT>(sizeof(unsigned short) * indices.size());
+
 	// インデックスバッファ生成
 	result = device->CreateCommittedResource(
 		&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD),
@@ -94,7 +109,7 @@ void Model::CreateBuffers(ID3D12Device* device)
 
 	// シェーダリソースビュー(SRV)作成
 	D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc{};	//	設定構造体
-	D3D12_RESOURCE_DESC resDesc = texBuff->GetDesc();
+	resDesc = texBuff->GetDesc();
 
 	srvDesc.Format = resDesc.Format;
 	srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
