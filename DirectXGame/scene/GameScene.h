@@ -10,6 +10,7 @@
 #include "Audio.h"
 #include "DebugCamera.h"
 #include "LightGroup.h"
+#include "Object3d.h"
 
 #include <vector>
 
@@ -63,6 +64,8 @@ private: // メンバ変数
 	Input* input = nullptr;
 	Audio* audio = nullptr;
 	DebugText* debugText;	
+	Model* model1 = nullptr;
+	Object3d* object1 = nullptr;
 
 	/// <summary>
 	/// ゲームシーン用

@@ -42,7 +42,7 @@ void FbxLoader::Finalize()
 	fbxManager->Destroy();
 }
 
-void FbxLoader::LoadModelFromFile(const string& modelName)
+Model* FbxLoader::LoadModelFromFile(const string& modelName)
 {
 	// モデルと同じ名前のフォルダから読み込む
 	const string directoryPath = baseDirectory + modelName + "/";
@@ -82,6 +82,8 @@ void FbxLoader::LoadModelFromFile(const string& modelName)
 
 	// FBXシーン解放
 	fbxScene->Destroy();
+
+	return model;
 }
 
 void FbxLoader::ParseNodeRecursive(Model* model, FbxNode* fbxNode, Node* parent)
@@ -116,7 +118,7 @@ void FbxLoader::ParseNodeRecursive(Model* model, FbxNode* fbxNode, Node* parent)
 	XMMATRIX matScaling, matRotation, matTranslation;
 	matScaling = XMMatrixScalingFromVector(node.scaling);
 	matRotation = XMMatrixRotationRollPitchYawFromVector(node.rotation);
-	matTranslation = XMMatrixScalingFromVector(node.translation);
+	matTranslation = XMMatrixTranslationFromVector(node.translation);
 
 	// ローカル変形行列の計算
 	node.transform = XMMatrixIdentity();
@@ -179,6 +181,17 @@ void FbxLoader::ParseMeshVertices(Model* model, FbxMesh* fbxMesh)
 
 	// FBXメッシュの頂点座標配列を取得
 	FbxVector4* pCoord = fbxMesh->GetControlPoints();
+
+	// FBXメッシュの全頂点座標をモデル内の配列にコピーする
+	for (int i = 0; i < controlPointsCount; i++)
+	{
+		Model::VertexPosNormalUv& vertex = vertices[i];
+		// 座標をコピー
+		vertex.pos.x = (float)pCoord[i][0];
+		vertex.pos.y = (float)pCoord[i][1];
+		vertex.pos.z = (float)pCoord[i][2];
+	}
+
 }
 
 void FbxLoader::ParseMeshFaces(Model* model, FbxMesh* fbxMesh)
@@ -324,7 +337,7 @@ void FbxLoader::LoadTexture(Model* model, const std::string& fullpath)
 	wchar_t wfilepath[128];
 	MultiByteToWideChar(CP_ACP, 0, fullpath.c_str(), -1, wfilepath, _countof(wfilepath));
 	result = LoadFromWICFile(
-		wfilepath, WIC_FLAGS_NONE, 
+		wfilepath, WIC_FLAGS_NONE,
 		&metadata, scratchImg);
 	if (FAILED(result))
 	{
