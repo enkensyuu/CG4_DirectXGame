@@ -7,6 +7,7 @@
 #include <wrl.h>
 #include <d3d12.h>
 #include <d3dx12.h>
+#include <fbxsdk.h>
 
 // ノード
 struct Node
@@ -65,6 +66,23 @@ public:
 	// モデルの変形行列取得
 	const XMMATRIX& GetModelTransform() { return meshNode->globalTransform; }
 
+public:
+	// ボーン構造体
+	struct Bone
+	{
+		// 名前
+		std::string name_;
+		// 初期姿勢の逆行列
+		DirectX::XMMATRIX invInitialPose;
+		// クラスター(FBX側のボーン情報)
+		FbxCluster* fbxCluster;
+		// コンストラクタ
+		Bone(const std::string& name)
+		{
+			this->name_ = name;
+		}
+	};
+
 private:
 	// モデル名
 	std::string name;
@@ -77,6 +95,9 @@ private:
 	std::vector<VertexPosNormalUv> vertices;
 	// 頂点インデックス配列
 	std::vector<unsigned short> indices;
+
+	// ボーン配列
+	std::vector<Bone>bones;
 
 	// アンビエント係数
 	DirectX::XMFLOAT3 ambient = { 1,1,1 };
@@ -99,5 +120,11 @@ private:
 	D3D12_INDEX_BUFFER_VIEW ibView = {};
 	// SRV用デスクリプタヒープ
 	Comptr<ID3D12DescriptorHeap>descHeapSRV;
+
+public:	//	
+	// getter
+	std::vector<Bone>& GetBones() { return bones; }
+
+
 
 };

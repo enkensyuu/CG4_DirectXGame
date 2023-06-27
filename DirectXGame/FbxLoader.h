@@ -37,7 +37,7 @@ public:
 	void Finalize();
 
 	/// <summary>
-	/// 
+	/// ファイルからFBXモデル読み込み
 	/// </summary>
 	/// <param name="modelName">モデル名</param>
 	Model* LoadModelFromFile(const string& modelName);
@@ -92,4 +92,15 @@ private:
 
 	// テクスチャがない場合の標準テクスチャファイル名
 	static const string defaultTextureFileName;
+
+public:	//	静的メンバ関数
+
+	/// <summary>
+	/// FBXの行列をXMMatrixに変換
+	/// </summary>
+	/// <param name="dst">書き込み先</param>
+	/// <param name="src">元となるFBX行列</param>
+	static void ConvertMatrixFromFbx(DirectX::XMMATRIX* dst, const FbxAMatrix& src);
+
+
 };
