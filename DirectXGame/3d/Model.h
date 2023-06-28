@@ -44,29 +44,21 @@ private: // エイリアス
 	using string = std::string;
 	template <class T>using vector = std::vector<T>;
 
+public:	//	定数
+	// ボーンインデックスの最大数
+	static const int MAX_BONE_INDICES = 4;
+
 public:	//	サブクラス
 	// 頂点データ構造体
-	struct VertexPosNormalUv
+	struct VertexPosNormalUvSkin
 	{
 		DirectX::XMFLOAT3 pos;		//	xyz座標
 		DirectX::XMFLOAT3 normal;	//	法線ベクトル
 		DirectX::XMFLOAT2 uv;		//	uv座標
+		UINT boneIndex[MAX_BONE_INDICES];	//	ボーン 番号
+		float boneWeight[MAX_BONE_INDICES];	//	ボーン 重み
 	};
 
-public:
-	// フレンドクラス
-	friend class FbxLoader;
-
-	// バッファ生成
-	void CreateBuffers(ID3D12Device* device);
-
-	// 描画
-	void Draw(ID3D12GraphicsCommandList* cmdList);
-
-	// モデルの変形行列取得
-	const XMMATRIX& GetModelTransform() { return meshNode->globalTransform; }
-
-public:
 	// ボーン構造体
 	struct Bone
 	{
@@ -83,6 +75,25 @@ public:
 		}
 	};
 
+public:
+	// フレンドクラス
+	friend class FbxLoader;
+
+	~Model();
+
+	// バッファ生成
+	void CreateBuffers(ID3D12Device* device);
+
+	// 描画
+	void Draw(ID3D12GraphicsCommandList* cmdList);
+
+	// モデルの変形行列取得
+	const XMMATRIX& GetModelTransform() { return meshNode->globalTransform; }
+
+	// getter
+	std::vector<Bone>& GetBones() { return bones; }
+	FbxScene* GetFbxScene() { return fbxScene; }
+
 private:
 	// モデル名
 	std::string name;
@@ -92,7 +103,7 @@ private:
 	// メッシュを持つノード
 	Node* meshNode = nullptr;
 	// 頂点データ配列
-	std::vector<VertexPosNormalUv> vertices;
+	std::vector<VertexPosNormalUvSkin> vertices;
 	// 頂点インデックス配列
 	std::vector<unsigned short> indices;
 
@@ -121,10 +132,8 @@ private:
 	// SRV用デスクリプタヒープ
 	Comptr<ID3D12DescriptorHeap>descHeapSRV;
 
-public:	//	
-	// getter
-	std::vector<Bone>& GetBones() { return bones; }
-
-
+public:
+	// FBXシーン
+	FbxScene* fbxScene = nullptr;
 
 };

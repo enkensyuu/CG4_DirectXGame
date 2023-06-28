@@ -71,6 +71,9 @@ public:
 	// ディレクトリを含んだファイルパスからファイル名を抽出する
 	std::string ExtractFileName(const std::string& path);
 
+	// スキニング情報の読み取り
+	void ParseSkin(Model* model, FbxMesh* fbxMesh);
+
 private:
 	// privateなコンストラクタ（シングルトンパターン）
 	FbxLoader() = default;
