@@ -9,6 +9,7 @@
 #include <d3dx12.h>
 #include <DirectXMath.h>
 #include <string>
+#include "FbxLoader.h"
 
 class Object3d
 {
@@ -43,6 +44,10 @@ public:	//	静的メンバ変数
 	// カメラ
 	static Camera* camera_;
 
+public:	//	定数
+	// ボーンの最大数
+	static const int MAX_BONES = 32;
+
 public:	//	サブクラス
 	// 定数バッファ用データ構造体(座標変換行列用)
 	struct ConstBufferDataTransform
@@ -50,6 +55,12 @@ public:	//	サブクラス
 		XMMATRIX viewproj;	//	ビュープロジェクション行列
 		XMMATRIX world;		//	ワールド行列
 		XMFLOAT3 cameraPos;	//	カメラ座標(ワールド座標)
+	};
+
+	// 定数バッファ用データ構造体(スキニング)
+	struct ConstBufferDataSkin
+	{
+		XMMATRIX bones[MAX_BONES];
 	};
 
 public:	//	メンバ関数
@@ -89,5 +100,9 @@ protected:	//	メンバ変数
 	static Comptr<ID3D12RootSignature> rootsignature;
 	// パイプラインステートオブジェクト
 	static Comptr<ID3D12PipelineState> pipelinestate;
+
+	// 定数バッファ(スキン)
+	Comptr<ID3D12Resource>constBuffSkin;
+
 };
 
