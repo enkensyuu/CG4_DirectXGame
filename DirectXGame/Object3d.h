@@ -91,6 +91,11 @@ public:	//	メンバ関数
 	/// <param name="model">モデル</param>
 	void SetModel(Model* model) { this->model_ = model; }
 
+	/// <summary>
+	/// アニメーション開始
+	/// </summary>
+	void PlayAnimation();
+
 protected:	//	メンバ変数
 
 	// 定数バッファ
@@ -103,6 +108,17 @@ protected:	//	メンバ変数
 
 	// 定数バッファ(スキン)
 	Comptr<ID3D12Resource>constBuffSkin;
+
+	// 1フレームの時間
+	FbxTime frameTime;
+	// アニメーション開始時間
+	FbxTime startTime;
+	// アニメーション終了時間
+	FbxTime endTime;
+	// 現在時間(アニメーション)
+	FbxTime currentTime;
+	// アニメーション再生中
+	bool isPlay = false;
 
 };
 

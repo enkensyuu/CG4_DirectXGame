@@ -373,6 +373,13 @@ void FbxLoader::ParseSkin(Model* model, FbxMesh* fbxMesh)
 	// スキニング情報がなければ終了
 	if (fbxSkin == nullptr)
 	{
+		// 各頂点について処理
+		for (int i = 0; i < model->vertices.size(); i++)
+		{
+			// 最初のボーン(単位行列)の影響100%にする
+			model->vertices[i].boneIndex[0] = 0;
+			model->vertices[i].boneWeight[0] = 1.0f;
+		}
 		return;
 	}
 
@@ -472,7 +479,7 @@ void FbxLoader::ParseSkin(Model* model, FbxMesh* fbxMesh)
 			{
 				float weight = 0.0f;
 				// 2番目以降のウェイトを合計
-				for (int j = 0; j < Model::MAX_BONE_INDICES; j++)
+				for (int j = 1; j < Model::MAX_BONE_INDICES; j++)
 				{
 					weight += vertices[i].boneWeight[j];
 				}
