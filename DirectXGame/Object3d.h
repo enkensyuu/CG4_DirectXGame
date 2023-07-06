@@ -96,6 +96,8 @@ public:	//	メンバ関数
 	/// </summary>
 	void PlayAnimation();
 
+	void SetRotation(XMFLOAT3 rotation) { this->rotation = rotation; }
+
 protected:	//	メンバ変数
 
 	// 定数バッファ

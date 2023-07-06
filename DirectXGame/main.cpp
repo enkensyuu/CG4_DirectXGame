@@ -6,6 +6,7 @@
 #include "ParticleManager.h"
 #include <fbxsdk.h>
 #include "FbxLoader.h"
+#include "PostEffect.h"
 
 // Windowsアプリでのエントリーポイント(main関数)
 int WINAPI WinMain(HINSTANCE,HINSTANCE,LPSTR,int)
@@ -18,6 +19,7 @@ int WINAPI WinMain(HINSTANCE,HINSTANCE,LPSTR,int)
 	Input* input = nullptr;	
 	Audio* audio = nullptr;
 	GameScene* gameScene = nullptr;
+	PostEffect* postEffect = nullptr;
 
 	// ゲームウィンドウの作成
 	win = new WinApp();
@@ -52,6 +54,12 @@ int WINAPI WinMain(HINSTANCE,HINSTANCE,LPSTR,int)
 
 	FbxLoader::GetInstance()->Initialize(dxCommon->GetDevice());
 
+	// ポストエフェクト用テクスチャの読み込み
+	Sprite::LoadTexture(100, L"Resources/white1x1.png");
+	// ポストエフェクトの初期化
+	postEffect = new PostEffect();
+	postEffect->Initialize();
+
 #pragma endregion
 
 	// ゲームシーンの初期化
@@ -71,8 +79,10 @@ int WINAPI WinMain(HINSTANCE,HINSTANCE,LPSTR,int)
 
 		// 描画開始
 		dxCommon->PreDraw();
-		// ゲームシーンの描画
-		gameScene->Draw();
+		
+		// ポストエフェクトの描画
+		postEffect->Draw(dxCommon->GetCommandList());
+
 		// 描画終了
 		dxCommon->PostDraw();
 
@@ -85,6 +95,7 @@ int WINAPI WinMain(HINSTANCE,HINSTANCE,LPSTR,int)
 	safe_delete(gameScene);
 	safe_delete(audio);
 	safe_delete(dxCommon);
+	delete postEffect;
 	FbxLoader::GetInstance()->Finalize();
 
 	// ゲームウィンドウの破棄

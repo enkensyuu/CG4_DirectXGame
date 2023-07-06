@@ -68,8 +68,9 @@ void GameScene::Initialize(DirectXCommon* dxCommon, Input* input, Audio* audio)
 	lightGroup = LightGroup::Create();
 
 	// カメラ注視点をセット
-	camera->SetTarget({ 0, 3, 0 });
-	camera->SetDistance(10.0f);
+	camera->SetTarget({ 0, 2.5f, 0 });
+	camera->SetDistance(8.0f);
+
 
 	// モデル名を指定してファイル読み込み
 	model1 = FbxLoader::GetInstance()->LoadModelFromFile("boneTest");
@@ -78,6 +79,7 @@ void GameScene::Initialize(DirectXCommon* dxCommon, Input* input, Audio* audio)
 	object1 = new Object3d;
 	object1->Initialize();
 	object1->SetModel(model1);
+	object1->SetRotation({ 0,90,0 });
 }
 
 void GameScene::Update()
