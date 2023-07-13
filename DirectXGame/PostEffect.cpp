@@ -206,6 +206,15 @@ void PostEffect::PreDrawScene(ID3D12GraphicsCommandList* cmdList)
 		WinApp::window_height));
 
 	// 全画面クリア
+	cmdList->ClearRenderTargetView(rtvH, clearColor, 0, nullptr);
+	// 深度バッファのクリア
+	cmdList->ClearDepthStencilView(dsvH, D3D12_CLEAR_FLAG_DEPTH, 1.0f, 0, 0, nullptr);
 
+}
 
+void PostEffect::PostDrawScene(ID3D12GraphicsCommandList* cmdList)
+{
+	// リソースバリアを変更(描画可能→シェーダーリソース)
+	cmdList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(texBuff.Get(),
+		D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE));
 }
