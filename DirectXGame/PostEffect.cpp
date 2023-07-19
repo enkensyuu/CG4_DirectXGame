@@ -80,33 +80,37 @@ void PostEffect::Initialize()
 		1, 0, 1, 0, D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET
 	);
 
-	// テクスチャバッファの生成
-	result = device->CreateCommittedResource(
-		&CD3DX12_HEAP_PROPERTIES(D3D12_CPU_PAGE_PROPERTY_WRITE_BACK,
-			D3D12_MEMORY_POOL_L0),
-		D3D12_HEAP_FLAG_NONE,
-		&texresDesc,
-		D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE,
-		&CD3DX12_CLEAR_VALUE(DXGI_FORMAT_R8G8B8A8_UNORM_SRGB, clearColor),
-		IID_PPV_ARGS(&texBuff));
-	assert(SUCCEEDED(result));
-
-	{// テクスチャを赤クリア
-		// 画素数(1280 x 720 = 921600ピクセル)
-		const UINT pixelCount = WinApp::window_width * WinApp::window_height;
-		// 画像1行分のデータサイズ
-		const UINT rowPitch = sizeof(UINT) * WinApp::window_width;
-		// 画像全体のデータサイズ
-		const UINT depthPitch = rowPitch * WinApp::window_height;
-		// 画像イメージ
-		UINT* img = new UINT[pixelCount];
-		for (int i = 0; i < pixelCount; i++) { img[i] = 0xff0000ff; }
-
-		// テクスチャバッファにデータ転送
-		result = texBuff->WriteToSubresource(0, nullptr,
-			img, rowPitch, depthPitch);
+	for (int i = 0; i < 2; i++)
+	{
+		// テクスチャバッファの生成
+		result = device->CreateCommittedResource(
+			&CD3DX12_HEAP_PROPERTIES(D3D12_CPU_PAGE_PROPERTY_WRITE_BACK,
+				D3D12_MEMORY_POOL_L0),
+			D3D12_HEAP_FLAG_NONE,
+			&texresDesc,
+			D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE,
+			&CD3DX12_CLEAR_VALUE(DXGI_FORMAT_R8G8B8A8_UNORM_SRGB, clearColor),
+			IID_PPV_ARGS(&texBuff[i]));
 		assert(SUCCEEDED(result));
-		delete[] img;
+
+		{// テクスチャを赤クリア
+		// 画素数(1280 x 720 = 921600ピクセル)
+			const UINT pixelCount = WinApp::window_width * WinApp::window_height;
+			// 画像1行分のデータサイズ
+			const UINT rowPitch = sizeof(UINT) * WinApp::window_width;
+			// 画像全体のデータサイズ
+			const UINT depthPitch = rowPitch * WinApp::window_height;
+			// 画像イメージ
+			UINT* img = new UINT[pixelCount];
+			for (int j = 0; j < pixelCount; j++) { img[j] = 0xff0000ff; }
+
+			// テクスチャバッファにデータ転送
+			result = texBuff[i]->WriteToSubresource(0, nullptr,
+				img, rowPitch, depthPitch);
+			assert(SUCCEEDED(result));
+			delete[] img;
+		}
+
 	}
 
 	// SRV用デスクリプタヒープ設定
@@ -126,7 +130,7 @@ void PostEffect::Initialize()
 	srvDesc.Texture2D.MipLevels = 1;
 
 	// デスクリプタヒープにSRV作成
-	device->CreateShaderResourceView(texBuff.Get(),	//	ビューと関連付けるバッファ
+	device->CreateShaderResourceView(texBuff[0].Get(),	//	ビューと関連付けるバッファ
 		&srvDesc,
 		descHeapSRV->GetCPUDescriptorHandleForHeapStart()
 	);
@@ -134,7 +138,7 @@ void PostEffect::Initialize()
 	// RTV用デスクリプタヒープ設定
 	D3D12_DESCRIPTOR_HEAP_DESC rtvDescHeapDesc{};
 	rtvDescHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
-	rtvDescHeapDesc.NumDescriptors = 1;
+	rtvDescHeapDesc.NumDescriptors = 2;
 	// RTV用デスクリプタヒープを生成
 	result = device->CreateDescriptorHeap(&rtvDescHeapDesc, IID_PPV_ARGS(&descHeapRTV));
 	assert(SUCCEEDED(result));
@@ -144,6 +148,7 @@ void PostEffect::Initialize()
 	// シェーダーの計算結果をSRGBに変換して書き込み
 	renderTargetViewDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
 	renderTargetViewDesc.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2D;
+
 
 	// デスクリプタヒープにRTV作成
 	device->CreateRenderTargetView(texBuff.Get(),
